@@ -1,0 +1,131 @@
+version: '2'
+
+volumes:
+  data-kafka:
+    external: false
+  data-metabase:
+    external: false
+
+services:
+
+  kafka:
+    build: ./kafka/.
+    container_name: kafka
+    ports:
+      - 1099:1099
+      - 9092:9092
+      - 9094:9094
+
+  metabase:
+    build: ./metabase/.
+    container_name: metabase
+    ports:
+      - 3000:3000
+  
+  master:
+    image: gettyimages/spark
+    command: bin/spark-class org.apache.spark.deploy.master.Master -h master
+    hostname: master
+    environment:
+      MASTER: spark://master:7077
+      SPARK_CONF_DIR: /conf
+      SPARK_PUBLIC_DNS: localhost
+    expose:
+      - 7001
+      - 7002
+      - 7003
+      - 7004
+      - 7005
+      - 7077
+      - 6066
+    ports:
+      - 4040:4040
+      - 6066:6066
+      - 7077:7077
+      - 8080:8080
+    volumes:
+      - ./conf/master:/conf
+      - ./data:/tmp/data
+
+  worker:
+    image: gettyimages/spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
+    hostname: worker
+    environment:
+      SPARK_CONF_DIR: /conf
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+      SPARK_PUBLIC_DNS: localhost
+    links:
+      - master
+    expose:
+      - 7012
+      - 7013
+      - 7014
+      - 7015
+      - 8881
+    ports:
+      - 8081:8081
+     volumes:
+       - ./conf/worker:/conf
+       - ./data:/tmp/data
+  
+  
+  #mysql:
+  #  build: ./bancos/mysql/.
+  #  command: --default-authentication-plugin=mysql_native_password
+  #  restart: always
+  #  container_name: mysql
+  #  ports:
+  #    - 3306:3306
+  #  environment:
+  #    MYSQL_DATABASE: default
+  #    MYSQL_ROOT_PASSWORD: root
+  #  volumes:
+  #    - data-mysql:/var/lib/mysql
+
+  #postgres:
+  #  build: ./bancos/postgresql/.
+  #  container_name: postgres
+  #  environment: 
+  #    POSTGRES_PASSWORD: root
+  #  ports: 
+  #    - 5432:5432
+  #  volumes:
+  #    - data-postgres:/var/lib/postgresql/data
+  
+  #phpmyadmin:
+  #  image: phpmyadmin/phpmyadmin
+  #  container_name: phpmyadmin
+  #  restart: always
+  #  links:
+  #    - mysql
+  #  ports:
+  #    - 8080:80
+  #  environment:
+  #    MYSQL_USERNAME: root 
+  #    MYSQL_ROOT_PASSWORD: root
+  #    PMA_HOST: mysql
+  #    PMA_ARBITRARY: 1
+      
+  #phppgadmin:
+  #  build: ./phppgadmin/.
+  #  restart: always
+  #  links: 
+  #    - postgres
+  #  ports:
+  #    - 8081:80
+  #  environment: 
+  #    PHP_PG_ADMIN_SERVER_PG_DUMP_PATH: /usr/bin/pg_dump
+  #    PHP_PG_ADMIN_SERVER_PG_DUMPALL_PATH: /usr/bin/pg_dumpall
+  #    PHP_PG_ADMIN_SERVER_HOST: postgres
+      
+      
+
+
+
+
+    
+    
