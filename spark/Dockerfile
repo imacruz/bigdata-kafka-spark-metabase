@@ -1,0 +1,1 @@
+FROM gettyimages/spark
