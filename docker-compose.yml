@@ -8,9 +8,20 @@ volumes:
 
 services:
 
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+
   kafka:
     build: ./kafka/.
     container_name: kafka
+    depends_on: 
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "Topico:twitter"
     ports:
       - 1099:1099
       - 9092:9092
