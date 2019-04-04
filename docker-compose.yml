@@ -5,6 +5,8 @@ volumes:
     external: false
   data-metabase:
     external: false
+  data-mysql:
+    external: false
 
 services:
 
@@ -84,18 +86,18 @@ services:
        - ./data:/tmp/data
   
   
-  #mysql:
-  #  build: ./bancos/mysql/.
-  #  command: --default-authentication-plugin=mysql_native_password
-  #  restart: always
-  #  container_name: mysql
-  #  ports:
-  #    - 3306:3306
-  #  environment:
-  #    MYSQL_DATABASE: default
-  #    MYSQL_ROOT_PASSWORD: root
-  #  volumes:
-  #    - data-mysql:/var/lib/mysql
+  mysql:
+    build: ./bancos/mysql/.
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    container_name: mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: default
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - data-mysql:/var/lib/mysql
 
   #postgres:
   #  build: ./bancos/postgresql/.
@@ -107,19 +109,19 @@ services:
   #  volumes:
   #    - data-postgres:/var/lib/postgresql/data
   
-  #phpmyadmin:
-  #  image: phpmyadmin/phpmyadmin
-  #  container_name: phpmyadmin
-  #  restart: always
-  #  links:
-  #    - mysql
-  #  ports:
-  #    - 8080:80
-  #  environment:
-  #    MYSQL_USERNAME: root 
-  #    MYSQL_ROOT_PASSWORD: root
-  #    PMA_HOST: mysql
-  #    PMA_ARBITRARY: 1
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    links:
+      - mysql
+    ports:
+      - 8080:80
+    environment:
+      MYSQL_USERNAME: root 
+      MYSQL_ROOT_PASSWORD: root
+      PMA_HOST: mysql
+      PMA_ARBITRARY: 1
       
   #phppgadmin:
   #  build: ./phppgadmin/.
